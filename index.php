@@ -38,7 +38,7 @@ $pdo = new PDO('mysql:host=' . TDB_DBSERVER . ';dbname=' . TDB_DBNAME,
 							 TDB_DBUSER,
 							 TDB_DBPASS, $options);
 
-$cardquery = $pdo->prepare('SELECT * FROM `copies`');
+ 
 $cardquery->execute();
 $allcards = $cardquery->fetchAll();
 ?>
@@ -67,8 +67,12 @@ $allcards = $cardquery->fetchAll();
 				<tbody>
 					<?php
 						foreach ( $allcards as $card ) :
-							$cardresponse = Pokemon::Card( $options )->find( $card['pk_setnum'] . '-' . $card['pk_cardnum'] );
-							$cardinfo     = $cardresponse->toArray();
+							try {
+								$cardresponse = Pokemon::Card( $options )->find( $card['pk_setnum'] . '-' . $card['pk_cardnum'] );
+								$cardinfo     = $cardresponse->toArray();
+							} catch ( InvalidArgumentException $ex ) {
+								$cardinfo = [ 'name' => '-- not found ' . $card['pk_cardnum'] ];
+							}
 					?>
 					<tr>
 						<th scope="row"><?= $cardinfo['name'] ?></th>
